@@ -15,6 +15,7 @@ import org.researchstack.backbone.storage.file.StorageAccessListener;
 import org.researchstack.backbone.ui.PinCodeActivity;
 import org.researchstack.backbone.utils.UiThreadContext;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -33,8 +34,7 @@ import java.util.List;
  * or it's fuctionality copied to your application's own base Activity. Make sure to delay any data
  * access until {@link PinCodeActivity#onDataReady()} has been called.
  */
-public class StorageAccess
-{
+public class StorageAccess {
     //-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
     // Assert Constants
     //-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
@@ -45,23 +45,21 @@ public class StorageAccess
     // Static Fields
     //-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
-    private static StorageAccess instance = new StorageAccess();
+    private static StorageAccess instance;
 
     //-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
     // Fields
     //-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
-    private FileAccess         fileAccess;
-    private PinCodeConfig      pinCodeConfig;
-    private AppDatabase        appDatabase;
+    private FileAccess fileAccess;
+    private PinCodeConfig pinCodeConfig;
+    private AppDatabase appDatabase;
     private EncryptionProvider encryptionProvider;
 
-    private Handler handler = new Handler(Looper.getMainLooper());
+    private Handler handler;
+    private List<StorageAccessListener> listeners;
 
-    private List<StorageAccessListener> listeners = Collections.synchronizedList(new ArrayList<>());
-
-    private StorageAccess()
-    {
+    private StorageAccess() {
     }
 
     /**
@@ -73,12 +71,13 @@ public class StorageAccess
      * @param fileAccess         an implementation of FileAccess
      * @param appDatabase        an implementation of AppDatabase
      */
-    public void init(PinCodeConfig pinCodeConfig, EncryptionProvider encryptionProvider, FileAccess fileAccess, AppDatabase appDatabase)
-    {
+    public void init(PinCodeConfig pinCodeConfig, EncryptionProvider encryptionProvider, FileAccess fileAccess, AppDatabase appDatabase) {
         this.pinCodeConfig = pinCodeConfig;
         this.appDatabase = appDatabase;
         this.fileAccess = fileAccess;
         this.encryptionProvider = encryptionProvider;
+        handler = new Handler(Looper.getMainLooper());
+        listeners = Collections.synchronizedList(new ArrayList<>());
     }
 
     /**
@@ -86,8 +85,10 @@ public class StorageAccess
      *
      * @return the singleton instance of this class
      */
-    public static StorageAccess getInstance()
-    {
+    public static StorageAccess getInstance() {
+        if (instance == null) {
+            instance = new StorageAccess();
+        }
         return instance;
     }
 
@@ -97,8 +98,7 @@ public class StorageAccess
      *
      * @return the FileAccess singleton
      */
-    public FileAccess getFileAccess()
-    {
+    public FileAccess getFileAccess() {
         return fileAccess;
     }
 
@@ -108,8 +108,7 @@ public class StorageAccess
      *
      * @return the AppDatabase singleton
      */
-    public AppDatabase getAppDatabase()
-    {
+    public AppDatabase getAppDatabase() {
         return appDatabase;
     }
 
@@ -118,8 +117,7 @@ public class StorageAccess
      *
      * @return the pin code configuration
      */
-    public PinCodeConfig getPinCodeConfig()
-    {
+    public PinCodeConfig getPinCodeConfig() {
         return pinCodeConfig;
     }
 
@@ -129,8 +127,7 @@ public class StorageAccess
      * @param context android context
      * @return a boolean indicating if the user has created a pin code
      */
-    public boolean hasPinCode(Context context)
-    {
+    public boolean hasPinCode(Context context) {
         return encryptionProvider.hasPinCode(context);
     }
 
@@ -154,17 +151,15 @@ public class StorageAccess
      *                leaks. Promise ;)
      */
     @MainThread
-    public void requestStorageAccess(Context context)
-    {
-        UiThreadContext.assertUiThread();
+    public void requestStorageAccess(Context context) {
+        if (CHECK_THREADS) {
+            UiThreadContext.assertUiThread();
+        }
 
-        if(encryptionProvider.needsAuth(context, pinCodeConfig))
-        {
+        if (encryptionProvider.needsAuth(context, pinCodeConfig)) {
             // just need to re-auth
             notifySoftFail();
-        }
-        else
-        {
+        } else {
             notifyReady();
         }
     }
@@ -176,14 +171,11 @@ public class StorageAccess
      * @param storageAccessListener
      */
     @MainThread
-    public final void register(StorageAccessListener storageAccessListener)
-    {
-        if(CHECK_THREADS)
-        {
+    public final void register(StorageAccessListener storageAccessListener) {
+        if (CHECK_THREADS) {
             UiThreadContext.assertUiThread();
         }
-        if(listeners.contains(storageAccessListener))
-        {
+        if (listeners.contains(storageAccessListener)) {
             throw new StorageAccessException("Listener already registered");
         }
 
@@ -197,68 +189,54 @@ public class StorageAccess
      * @param storageAccessListener
      */
     @MainThread
-    public final void unregister(StorageAccessListener storageAccessListener)
-    {
-        if(CHECK_THREADS)
-        {
+    public final void unregister(StorageAccessListener storageAccessListener) {
+        if (CHECK_THREADS) {
             UiThreadContext.assertUiThread();
         }
         listeners.remove(storageAccessListener);
     }
 
-    private void notifyReady()
-    {
-        handler.post(this :: notifyListenersReady);
+    private void notifyReady() {
+        handler.post(this::notifyListenersReady);
     }
 
     @MainThread
-    private void notifyListenersReady()
-    {
-        if(CHECK_THREADS)
-        {
+    private void notifyListenersReady() {
+        if (CHECK_THREADS) {
             UiThreadContext.assertUiThread();
         }
 
-        for(StorageAccessListener listener : listeners)
-        {
+        for (StorageAccessListener listener : listeners) {
             listener.onDataReady();
         }
     }
 
-    private void notifyHardFail()
-    {
-        handler.post(this :: notifyListenersHardFail);
+    private void notifyHardFail() {
+        handler.post(this::notifyListenersHardFail);
     }
 
     @MainThread
-    private void notifyListenersHardFail()
-    {
-        if(CHECK_THREADS)
-        {
+    private void notifyListenersHardFail() {
+        if (CHECK_THREADS) {
             UiThreadContext.assertUiThread();
         }
 
-        for(StorageAccessListener listener : listeners)
-        {
+        for (StorageAccessListener listener : listeners) {
             listener.onDataFailed();
         }
     }
 
-    private void notifySoftFail()
-    {
-        handler.post(this :: notifyListenersSoftFail);
+    private void notifySoftFail() {
+        handler.post(this::notifyListenersSoftFail);
     }
 
     @MainThread
-    private void notifyListenersSoftFail()
-    {
-        if(CHECK_THREADS)
-        {
+    private void notifyListenersSoftFail() {
+        if (CHECK_THREADS) {
             UiThreadContext.assertUiThread();
         }
 
-        for(StorageAccessListener listener : listeners)
-        {
+        for (StorageAccessListener listener : listeners) {
             listener.onDataAuth();
         }
     }
@@ -275,8 +253,7 @@ public class StorageAccess
      * ensure that it updates frequently while the user is still inside of the app so as not to
      * trigger a reset, but will reset if the user has been outside of the app for too long.
      */
-    public void logAccessTime()
-    {
+    public void logAccessTime() {
         encryptionProvider.logAccessTime();
     }
 
@@ -288,8 +265,7 @@ public class StorageAccess
      * @param pin     string of the pin to attempt authentication
      * @throws StorageAccessException
      */
-    public void authenticate(Context context, String pin)
-    {
+    public void authenticate(Context context, String pin) {
         encryptionProvider.startWithPassphrase(context, pin);
         injectEncrypter();
     }
@@ -302,10 +278,8 @@ public class StorageAccess
      * @param pin     the user's pin, this should already be validated (enter + confirm)
      * @throws StorageAccessException if there is already a pin code
      */
-    public void createPinCode(Context context, String pin)
-    {
-        if(hasPinCode(context))
-        {
+    public void createPinCode(Context context, String pin) {
+        if (hasPinCode(context)) {
             throw new StorageAccessException("Attempted to create a pin when one already exists");
         }
 
@@ -322,14 +296,12 @@ public class StorageAccess
      * @param newPin  the new pin, which should already be validated (enter + confirm)
      * @throws StorageAccessException
      */
-    public void changePinCode(Context context, String oldPin, String newPin)
-    {
+    public void changePinCode(Context context, String oldPin, String newPin) {
         encryptionProvider.changePinCode(context, oldPin, newPin);
         injectEncrypter();
     }
 
-    private void injectEncrypter()
-    {
+    private void injectEncrypter() {
         fileAccess.setEncrypter(encryptionProvider.getEncrypter());
         appDatabase.setEncryptionKey(encryptionProvider.getEncrypter().getDbKey());
     }
