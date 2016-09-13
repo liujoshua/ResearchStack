@@ -136,12 +136,8 @@ if (project.hasProperty("android")) { // Android libraries
 
     task javadoc(type: Javadoc) {
         failOnError false
-        source = android.sourceSets.main.java.srcDirs
 
-        exclude '**/BuildConfig.java'
-        exclude '**/R.java'
-        // exclude internal packages
-        exclude '**/internal/**'
+        source = android.sourceSets.main.java.srcDirs
     }
 
     afterEvaluate {

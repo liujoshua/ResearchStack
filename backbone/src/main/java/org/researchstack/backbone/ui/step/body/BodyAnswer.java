@@ -45,7 +45,7 @@ public class BodyAnswer
         }
         else
         {
-            return context.getString(getReason(), (String[]) getParams());
+            return context.getString(getReason(), (Object[]) getParams());
         }
     }
 }
