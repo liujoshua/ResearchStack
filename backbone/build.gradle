@@ -71,8 +71,8 @@ dependencies {
     compile 'com.android.support:preference-v14:23.2.1'
     compile 'com.android.support:design:23.2.1'
     compile 'com.google.code.gson:gson:2.4'
-    compile 'io.reactivex:rxjava:1.1.3'
-    compile 'io.reactivex:rxandroid:1.1.0'
+    //compile 'io.reactivex:rxjava:1.1.3'
+    compile 'io.reactivex:rxandroid:1.2.1'
     compile 'com.jakewharton.rxbinding:rxbinding:0.2.0'
     compile 'com.jakewharton.rxbinding:rxbinding-support-v4:0.2.0'
     compile 'com.jakewharton.rxbinding:rxbinding-appcompat-v7:0.2.0'
@@ -137,6 +137,11 @@ if (project.hasProperty("android")) { // Android libraries
     task javadoc(type: Javadoc) {
         failOnError false
         source = android.sourceSets.main.java.srcDirs
+
+        exclude '**/BuildConfig.java'
+        exclude '**/R.java'
+        // exclude internal packages
+        exclude '**/internal/**'
     }
 
     afterEvaluate {

@@ -168,7 +168,7 @@ public class StorageAccess {
      * Registers a listener. If you want to read/write data, you'll need to implement this to know
      * when file access is ready.
      *
-     * @param storageAccessListener
+     * @param storageAccessListener to register
      */
     @MainThread
     public final void register(StorageAccessListener storageAccessListener) {
@@ -186,7 +186,7 @@ public class StorageAccess {
      * Guess what this does. Yes, you'll need to call it if you called register or you'll have
      * memory leaks and possibly crashes on callbacks to dead clients.
      *
-     * @param storageAccessListener
+     * @param storageAccessListener to unregister
      */
     @MainThread
     public final void unregister(StorageAccessListener storageAccessListener) {
