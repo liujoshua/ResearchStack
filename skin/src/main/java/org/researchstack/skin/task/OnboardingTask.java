@@ -5,6 +5,7 @@ import org.researchstack.backbone.result.TaskResult;
 import org.researchstack.backbone.step.Step;
 import org.researchstack.backbone.task.Task;
 import org.researchstack.backbone.ui.step.body.NotImplementedStepBody;
+import org.researchstack.backbone.ui.step.layout.StepLayout;
 import org.researchstack.skin.R;
 import org.researchstack.skin.step.PassCodeCreationStep;
 import org.researchstack.skin.ui.layout.PermissionStepLayout;
@@ -98,8 +99,7 @@ public abstract class OnboardingTask extends Task
         {
             thankyouStep = new Step(SignUpThankYouStepIdentifier);
             thankyouStep.setStepTitle(R.string.rss_thank_you);
-            thankyouStep.setStepLayoutClass(NotImplementedStepBody.class);
-            //            thankyouStep.setStepLayoutClass(SignUpThankYouStepLayout.class);
+            // TODO: provide StepLayout class
         }
         return thankyouStep;
     }

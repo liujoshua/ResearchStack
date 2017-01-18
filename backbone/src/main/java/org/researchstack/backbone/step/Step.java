@@ -1,6 +1,8 @@
 package org.researchstack.backbone.step;
 
 import org.researchstack.backbone.task.Task;
+import org.researchstack.backbone.ui.step.layout.ConsentDocumentStepLayout;
+import org.researchstack.backbone.ui.step.layout.StepLayout;
 
 import java.io.Serializable;
 
@@ -24,7 +26,7 @@ public class Step implements Serializable
 {
     private String identifier;
 
-    private Class stepLayoutClass;
+    private Class<? extends StepLayout> stepLayoutClass;
 
     private int stepTitle;
 
@@ -192,7 +194,7 @@ public class Step implements Serializable
      * @return the class of the {@link org.researchstack.backbone.ui.step.layout.StepLayout} for
      * this step
      */
-    public Class getStepLayoutClass()
+    public Class<? extends StepLayout> getStepLayoutClass()
     {
         return stepLayoutClass;
     }
@@ -203,7 +205,7 @@ public class Step implements Serializable
      * @param stepLayoutClass the {@link org.researchstack.backbone.ui.step.layout.StepLayout} class
      *                        to be used to display this step
      */
-    public void setStepLayoutClass(Class stepLayoutClass)
+    public void setStepLayoutClass(Class<? extends StepLayout> stepLayoutClass)
     {
         this.stepLayoutClass = stepLayoutClass;
     }

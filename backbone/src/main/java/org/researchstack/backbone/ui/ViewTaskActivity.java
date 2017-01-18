@@ -149,9 +149,9 @@ public class ViewTaskActivity extends PinCodeActivity implements StepCallbacks
     {
         try
         {
-            Class cls = step.getStepLayoutClass();
-            Constructor constructor = cls.getConstructor(Context.class);
-            return (StepLayout) constructor.newInstance(this);
+            Class<? extends StepLayout> cls = step.getStepLayoutClass();
+            Constructor<? extends StepLayout> constructor = cls.getConstructor(Context.class);
+            return constructor.newInstance(this);
         }
         catch(Exception e)
         {
