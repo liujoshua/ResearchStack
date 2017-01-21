@@ -1,6 +1,7 @@
 package org.researchstack.skin;
 import android.app.Application;
 import android.content.Context;
+import android.support.annotation.AnyThread;
 
 import org.researchstack.backbone.result.TaskResult;
 import org.researchstack.backbone.storage.file.FileAccess;
@@ -19,6 +20,7 @@ import rx.Observable;
  * Class used to as a buffer between the network layer and UI layer. The implementation allows the
  * framework to be backend-agnostic
  */
+@AnyThread
 public abstract class DataProvider
 {
     public final static String ERROR_NOT_AUTHENTICATED = "ERROR_NOT_AUTHENTICATED";
