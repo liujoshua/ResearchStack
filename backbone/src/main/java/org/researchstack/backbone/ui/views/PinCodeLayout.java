@@ -65,7 +65,8 @@ public class PinCodeLayout extends RelativeLayout
         editText.setInputType(pinType.getInputType() | pinType.getVisibleVariationType(false));
 
         char[] chars = new char[config.getPinLength()];
-        Arrays.fill(chars, '◦');
+
+        Arrays.fill(chars, '\u25e6');
         editText.setHint(new String(chars));
 
         InputFilter[] filters = ViewUtils.addFilter(editText.getFilters(),
