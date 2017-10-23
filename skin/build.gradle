@@ -18,9 +18,6 @@ android {
         targetSdkVersion 26
         versionCode 6
         versionName version
-        jackOptions {
-            enabled true
-        }
     }
     buildTypes {
         release {
@@ -44,6 +41,12 @@ android {
     }
 
     resourcePrefix 'rss_'
+}
+
+gradle.projectsEvaluated {
+    tasks.withType(JavaCompile) {
+        options.compilerArgs << "-Xbootclasspath/a:" + System.properties.get("java.home") + "/lib/rt.jar"
+    }
 }
 
 // Reading in data from local.properties is used here to grab key/value pairs used below in ext
