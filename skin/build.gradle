@@ -1,6 +1,5 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'me.tatarka.retrolambda'
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'maven-publish'
 
@@ -19,6 +18,9 @@ android {
         targetSdkVersion 26
         versionCode 6
         versionName version
+        jackOptions {
+            enabled true
+        }
     }
     buildTypes {
         release {
