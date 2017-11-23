@@ -1,5 +1,6 @@
 package org.researchstack.backbone.ui.step.layout;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.AttributeSet;
@@ -14,7 +15,6 @@ import com.jakewharton.rxbinding.view.RxView;
 
 import org.researchstack.backbone.R;
 import org.researchstack.backbone.result.StepResult;
-import org.researchstack.backbone.result.TaskResult;
 import org.researchstack.backbone.step.ConsentSignatureStep;
 import org.researchstack.backbone.step.Step;
 import org.researchstack.backbone.ui.callbacks.SignatureCallbacks;
@@ -29,6 +29,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import rx.subscriptions.CompositeSubscription;
+
 public class ConsentSignatureStepLayout extends RelativeLayout implements StepLayout {
     public static final String KEY_SIGNATURE = "ConsentSignatureStep.Signature";
     public static final String KEY_SIGNATURE_DATE = "ConsentSignatureStep.Signature.Date";
@@ -37,6 +39,7 @@ public class ConsentSignatureStepLayout extends RelativeLayout implements StepLa
     private StepCallbacks callbacks;
     private Step step;
     private StepResult<String> result;
+    private CompositeSubscription subscriptions = new CompositeSubscription();
 
     public ConsentSignatureStepLayout(Context context) {
         super(context);
@@ -65,7 +68,7 @@ public class ConsentSignatureStepLayout extends RelativeLayout implements StepLa
 
     @Override
     public boolean isBackEventConsumed() {
-        setDataToResult();
+        beforeLeaveStep();
         callbacks.onSaveStep(StepCallbacks.ACTION_PREV, step, result);
         return false;
     }
@@ -75,6 +78,7 @@ public class ConsentSignatureStepLayout extends RelativeLayout implements StepLa
         this.callbacks = callbacks;
     }
 
+    @SuppressLint(value = {"RxSubscribeOnError"})
     private void initializeStep() {
         LayoutInflater.from(getContext())
                 .inflate(R.layout.rsb_step_layout_consent_signature, this, true);
@@ -102,9 +106,11 @@ public class ConsentSignatureStepLayout extends RelativeLayout implements StepLa
             }
         });
 
-        RxView.clicks(clear).subscribe(v -> {
-            signatureView.clearSignature();
-        });
+        subscriptions.add(
+                RxView.clicks(clear).subscribe(v -> {
+                    signatureView.clearSignature();
+                })
+        );
 
         clear.setClickable(signatureView.isSignatureDrawn());
 
@@ -115,7 +121,7 @@ public class ConsentSignatureStepLayout extends RelativeLayout implements StepLa
         submitBar.getNegativeActionView().setVisibility(View.GONE);
         submitBar.setPositiveAction(v -> {
             if (signatureView.isSignatureDrawn()) {
-                setDataToResult();
+                beforeLeaveStep();
                 callbacks.onSaveStep(StepCallbacks.ACTION_NEXT, step, result);
             } else {
                 Toast.makeText(getContext(), R.string.rsb_error_invalid_signature, Toast.LENGTH_SHORT).show();
@@ -123,7 +129,7 @@ public class ConsentSignatureStepLayout extends RelativeLayout implements StepLa
         });
     }
 
-    private void setDataToResult() {
+    private void beforeLeaveStep() {
         String format = ((ConsentSignatureStep) step).getSignatureDateFormat();
         DateFormat signatureDateFormat = !TextUtils.isEmpty(format)
                 ? new SimpleDateFormat(format)
@@ -132,6 +138,7 @@ public class ConsentSignatureStepLayout extends RelativeLayout implements StepLa
 
         result.setResultForIdentifier(KEY_SIGNATURE, getBase64EncodedImage());
         result.setResultForIdentifier(KEY_SIGNATURE_DATE, formattedSignDate);
+        subscriptions.unsubscribe();
     }
 
     private String getBase64EncodedImage() {

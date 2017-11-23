@@ -82,6 +82,7 @@ dependencies {
     implementation 'com.android.support:design:26.1.0'
 
     api 'io.reactivex:rxjava:1.2.5'
+    compile 'nl.littlerobots.rxlint:rxlint:1.6'
     implementation 'com.google.code.gson:gson:2.4'
 
     implementation 'io.reactivex:rxandroid:1.2.1'

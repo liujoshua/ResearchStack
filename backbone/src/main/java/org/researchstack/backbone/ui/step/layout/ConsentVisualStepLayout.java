@@ -1,5 +1,6 @@
 package org.researchstack.backbone.ui.step.layout;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
@@ -16,7 +17,6 @@ import com.jakewharton.rxbinding.view.RxView;
 import org.researchstack.backbone.R;
 import org.researchstack.backbone.model.ConsentSection;
 import org.researchstack.backbone.result.StepResult;
-import org.researchstack.backbone.result.TaskResult;
 import org.researchstack.backbone.step.ConsentVisualStep;
 import org.researchstack.backbone.step.Step;
 import org.researchstack.backbone.ui.ViewWebDocumentActivity;
@@ -26,10 +26,14 @@ import org.researchstack.backbone.ui.views.SubmitBar;
 import org.researchstack.backbone.utils.ResUtils;
 import org.researchstack.backbone.utils.TextUtils;
 
+import rx.subscriptions.CompositeSubscription;
+
 public class ConsentVisualStepLayout extends FixedSubmitBarLayout implements StepLayout {
 
     private StepCallbacks callbacks;
     private ConsentVisualStep step;
+    private CompositeSubscription subscriptions = new CompositeSubscription();
+
 
     public ConsentVisualStepLayout(Context context) {
         super(context);
@@ -56,6 +60,7 @@ public class ConsentVisualStepLayout extends FixedSubmitBarLayout implements Ste
 
     @Override
     public boolean isBackEventConsumed() {
+        subscriptions.unsubscribe();
         callbacks.onSaveStep(StepCallbacks.ACTION_PREV, step, null);
         return false;
     }
@@ -70,6 +75,7 @@ public class ConsentVisualStepLayout extends FixedSubmitBarLayout implements Ste
         return R.layout.rsb_step_layout_consent_visual;
     }
 
+    @SuppressLint(value = {"RxSubscribeOnError"})
     private void initializeStep() {
         ConsentSection data = step.getSection();
 
@@ -118,12 +124,14 @@ public class ConsentVisualStepLayout extends FixedSubmitBarLayout implements Ste
                 moreInfoView.setText(data.getType().getMoreInfoResId());
             }
 
-            RxView.clicks(moreInfoView).subscribe(v -> {
-                String webTitle = getResources().getString(R.string.rsb_consent_section_more_info);
-                Intent webDoc = ViewWebDocumentActivity.newIntentForContent(getContext(), webTitle,
-                        TextUtils.isEmpty(data.getContent()) ? data.getHtmlContent() : data.getContent());
-                getContext().startActivity(webDoc);
-            });
+            subscriptions.add(
+                    RxView.clicks(moreInfoView).subscribe(v -> {
+                        String webTitle = getResources().getString(R.string.rsb_consent_section_more_info);
+                        Intent webDoc = ViewWebDocumentActivity.newIntentForContent(getContext(), webTitle,
+                                TextUtils.isEmpty(data.getContent()) ? data.getHtmlContent() : data.getContent());
+                        getContext().startActivity(webDoc);
+                    })
+            );
         } else {
             moreInfoView.setVisibility(View.GONE);
         }
@@ -135,9 +143,10 @@ public class ConsentVisualStepLayout extends FixedSubmitBarLayout implements Ste
             nextButtonTitle = step.getNextButtonString();
         }
         submitBar.setPositiveTitle(nextButtonTitle);
-        submitBar.setPositiveAction(v -> callbacks.onSaveStep(StepCallbacks.ACTION_NEXT,
-                step,
-                null));
+        submitBar.setPositiveAction(v -> {
+            subscriptions.unsubscribe();
+            callbacks.onSaveStep(StepCallbacks.ACTION_NEXT, step, null);
+        });
         submitBar.getNegativeActionView().setVisibility(View.GONE);
     }
 }

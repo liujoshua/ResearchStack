@@ -18,9 +18,9 @@ import rx.Observable;
 import rx.Single;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
-import static org.researchstack.backbone.DataProvider.Errors.ERROR_APP_UPGRADE_REQUIRED;
-import static org.researchstack.backbone.DataProvider.Errors.ERROR_CONSENT_REQUIRED;
-import static org.researchstack.backbone.DataProvider.Errors.ERROR_NOT_AUTHENTICATED;
+import static org.researchstack.backbone.DataProvider.Errors.APP_UPGRADE_REQUIRED;
+import static org.researchstack.backbone.DataProvider.Errors.CONSENT_REQUIRED;
+import static org.researchstack.backbone.DataProvider.Errors.NOT_AUTHENTICATED;
 
 /**
  * Class used to as a buffer between the network layer and UI layer. The implementation allows the
@@ -30,14 +30,14 @@ public abstract class DataProvider {
 
     @Retention(SOURCE)
     @StringDef({
-            ERROR_NOT_AUTHENTICATED,
-            ERROR_CONSENT_REQUIRED,
-            ERROR_APP_UPGRADE_REQUIRED
+            NOT_AUTHENTICATED,
+            CONSENT_REQUIRED,
+            APP_UPGRADE_REQUIRED
     })
     public @interface Errors {
-        String ERROR_NOT_AUTHENTICATED = "org.researchstack.ERROR_NOT_AUTHENTICATED";
-        String ERROR_CONSENT_REQUIRED = "org.researchstack.ERROR_CONSENT_REQUIRED";
-        String ERROR_APP_UPGRADE_REQUIRED = "org.researchstack.ERROR_APP_UPGRADE_REQUIRED";
+        String NOT_AUTHENTICATED = "org.researchstack.NOT_AUTHENTICATED";
+        String CONSENT_REQUIRED = "org.researchstack.CONSENT_REQUIRED";
+        String APP_UPGRADE_REQUIRED = "org.researchstack.APP_UPGRADE_REQUIRED";
     }
 
     private static DataProvider instance;

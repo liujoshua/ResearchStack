@@ -28,7 +28,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Created by liujoshua on 11/22/2017.
  */
 public class DataProviderErrorReceiver extends BroadcastReceiver {
-
     public static final String ACTION_DATA_PROVIDER_ERROR = "org.researchstack.skin.DataProviderError";
 
     @Override
@@ -72,7 +71,7 @@ public class DataProviderErrorReceiver extends BroadcastReceiver {
 
     @VisibleForTesting
     void handleInActivity(BaseActivity activity) {
-        String messageText = null;
+        String messageText = activity.getString(R.string.rss_network_error_unknown);
         String actionText = null;
         int length = Snackbar.LENGTH_INDEFINITE;
 
@@ -81,24 +80,29 @@ public class DataProviderErrorReceiver extends BroadcastReceiver {
         Set<String> errors = AppPrefs.getInstance().getDataProviderErrors();
 
         String errorToHandle = null;
-        if (errors.contains(DataProvider.Errors.ERROR_APP_UPGRADE_REQUIRED)) {
-            errorToHandle = DataProvider.Errors.ERROR_APP_UPGRADE_REQUIRED;
+        if (errors.contains(DataProvider.Errors.APP_UPGRADE_REQUIRED)) {
+            errorToHandle = DataProvider.Errors.APP_UPGRADE_REQUIRED;
+
             messageText = activity.getString(R.string.rss_network_error_upgrade_app);
             actionText = activity.getString(R.string.rss_network_error_upgrade_app_action);
 
             Intent playStoreIntent = new Intent(Intent.ACTION_VIEW);
             playStoreIntent.setData(Uri.parse("market://details?id=" + activity.getPackageName()));
             action = v -> activity.startActivity(playStoreIntent);
-        } else if (errors.contains(DataProvider.Errors.ERROR_NOT_AUTHENTICATED)) {
-            errorToHandle = DataProvider.Errors.ERROR_NOT_AUTHENTICATED;
+        } else if (errors.contains(DataProvider.Errors.NOT_AUTHENTICATED)) {
+            errorToHandle = DataProvider.Errors.NOT_AUTHENTICATED;
+
             messageText = activity.getString(R.string.rss_network_error_sign_in);
             actionText = activity.getString(R.string.rss_network_error_sign_in_action);
+
             action = v -> ResearchStack.getInstance().getOnboardingManager()
                     .launchOnboarding(OnboardingTaskType.LOGIN, activity);
-        } else if (errors.contains(DataProvider.Errors.ERROR_CONSENT_REQUIRED)) {
-            errorToHandle = DataProvider.Errors.ERROR_NOT_AUTHENTICATED;
+        } else if (errors.contains(DataProvider.Errors.CONSENT_REQUIRED)) {
+            errorToHandle = DataProvider.Errors.NOT_AUTHENTICATED;
+
             messageText = activity.getString(R.string.rss_network_error_consent);
             actionText = activity.getString(R.string.rss_network_error_consent_action);
+
             action = v -> ResearchStack.getInstance().getOnboardingManager()
                     .launchOnboarding(OnboardingTaskType.RECONSENT, activity);
         }
