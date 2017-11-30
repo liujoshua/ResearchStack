@@ -1,5 +1,6 @@
 package org.researchstack.backbone.ui.graph;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
@@ -39,6 +40,7 @@ public class BarChartCard extends CardView {
     private int chartXAxisTextColor;
     private String chartXAxisTextTypeface;
     private int expandTintColor;
+    private Action1 action;
 
     public BarChartCard(Context context) {
         super(context);
@@ -142,7 +144,9 @@ public class BarChartCard extends CardView {
         titleTextView.setText(title);
     }
 
+    @SuppressLint(value = {"RxSubscribeOnError"})
     public void setExpandAction(Action1<Object> action) {
+        this.action = action;
         expand.setVisibility(action == null ? View.GONE : View.VISIBLE);
 
         if (expandSub != null) {
@@ -151,6 +155,23 @@ public class BarChartCard extends CardView {
 
         if (action != null) {
             expandSub = RxView.clicks(expand).subscribe(action);
+        }
+    }
+
+    @Override
+    @SuppressLint(value = {"RxSubscribeOnError"})
+    public void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        if (action != null) {
+            expandSub = RxView.clicks(expand).subscribe(action);
+        }
+    }
+
+    @Override
+    public void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        if (expandSub != null) {
+            expandSub.unsubscribe();
         }
     }
 

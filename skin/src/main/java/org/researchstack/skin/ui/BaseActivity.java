@@ -22,7 +22,7 @@ import org.researchstack.skin.ui.layout.SignUpEligibleStepLayout;
 import rx.Observable;
 
 import static org.researchstack.skin.DataProviderErrorReceiver.ACTION_DATA_PROVIDER_ERROR;
-
+@Deprecated
 public class BaseActivity extends PinCodeActivity {
     private BroadcastReceiver errorBroadcastReceiver = new DataProviderErrorReceiver();
 

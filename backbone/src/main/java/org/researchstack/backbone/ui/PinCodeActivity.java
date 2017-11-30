@@ -1,6 +1,7 @@
 package org.researchstack.backbone.ui;
 
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
