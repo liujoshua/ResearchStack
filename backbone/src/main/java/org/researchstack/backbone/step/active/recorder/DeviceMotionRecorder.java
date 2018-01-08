@@ -118,7 +118,7 @@ public class DeviceMotionRecorder extends SensorRecorder {
     }
 
     @Override
-    public void onSensorChanged(SensorEvent sensorEvent) {
+    public void onSensorChangedImpl(SensorEvent sensorEvent, JsonObject object) {
         switch (sensorEvent.sensor.getType()) {
             case Sensor.TYPE_ACCELEROMETER:
                 accelJsonObject.addProperty(X_KEY, sensorEvent.values[0]);
