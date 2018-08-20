@@ -85,7 +85,10 @@ dependencies {
     implementation 'nl.littlerobots.rxlint:rxlint:1.6.1'
     implementation 'com.google.code.gson:gson:2.8.2'
 
-    implementation 'com.cronutils:cron-utils:3.1.2'
+    implementation 'com.cronutils:cron-utils:3.1.2', {
+        exclude group: 'joda-time', module: 'joda-time'
+    }
+    api 'net.danlew:android.joda:2.9.9.4'
 
     implementation 'com.squareup.retrofit2:retrofit:2.3.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
@@ -108,6 +111,7 @@ dependencies {
     api 'net.zetetic:android-database-sqlcipher:3.5.4@aar'
 
     // Libraries to help with unit testing
+    testImplementation 'joda-time:joda-time:2.9.9'
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.mockito:mockito-core:2.8.9'
     testImplementation 'org.powermock:powermock-api-mockito2:1.7.1'
