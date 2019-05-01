@@ -1,2 +1,2 @@
 include ':backbone', ':skin', ':foundation', ':authentication', ':chart', ':consent', ':storage'
-include ':sample_app_skin', ':sample_app_backbone'
+include ':sample_app_skin', ':sample_app_backbone', ':fda_my_studies_app'
