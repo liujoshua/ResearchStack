@@ -1,6 +1,6 @@
 package org.researchstack.sampleapp.bridge;
 import android.content.Context;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Base64;
 
 import com.google.gson.Gson;

@@ -4,7 +4,7 @@ import android.Manifest;
 import android.app.Application;
 import android.content.Context;
 import android.os.Build;
-import android.support.multidex.MultiDex;
+import androidx.multidex.MultiDex;
 
 import org.researchstack.skin.PermissionRequestManager;
 import org.researchstack.skin.ResearchStack;
