@@ -2,14 +2,14 @@ package org.researchstack.foundation.components.presentation
 
 import android.content.Context
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.fragment.app.Fragment
 import org.researchstack.foundation.R
 import org.researchstack.foundation.components.common.ui.callbacks.StepCallbacks
 import org.researchstack.foundation.components.presentation.interfaces.IStepFragment
@@ -18,10 +18,8 @@ import org.researchstack.foundation.components.presentation.interfaces.ITaskNavi
 import org.researchstack.foundation.core.interfaces.IResult
 import org.researchstack.foundation.core.interfaces.IStep
 import org.researchstack.foundation.core.interfaces.ITask
-import java.lang.RuntimeException
-import java.util.*
 
-abstract class TaskPresentationFragment<StepType: IStep, ResultType: IResult, TaskType: ITask>(): androidx.fragment.app.Fragment(), StepCallbacks {
+abstract class TaskPresentationFragment<StepType: IStep, ResultType: IResult, TaskType: ITask>(): Fragment(), StepCallbacks {
 
     public var taskProvider: ITaskProvider? = null
     public var stepFragmentProvider: IStepFragmentProvider? = null
@@ -229,9 +227,4 @@ abstract class TaskPresentationFragment<StepType: IStep, ResultType: IResult, Ta
         result?.let { setStepResult(this.result, step.identifier, it) }
         onExecuteStepAction(action)
     }
-
-    override fun onCancelStep() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
 }

@@ -12,6 +12,4 @@ public interface StepCallbacks {
 
     void onSaveStep(int action, IStep step, @Nullable IResult result);
 
-    @Deprecated
-    void onCancelStep();
 }
