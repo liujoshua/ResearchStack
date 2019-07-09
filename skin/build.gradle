@@ -1,25 +1,26 @@
 apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
 apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'me.tatarka.retrolambda'
-apply plugin: 'com.neenbedankt.android-apt'
 apply plugin: 'com.jfrog.bintray'
 
-version = '1.1.2'
+apply plugin: 'kotlin-kapt'
+
+version = research_stack_version
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    compileSdkVersion 28
 
     lintOptions {
         warning "InvalidPackage"
     }
 
     defaultConfig {
-        minSdkVersion 16
-        targetSdkVersion 23
-        versionCode 6
+        minSdkVersion 19
+        targetSdkVersion 28
+        versionCode 7
         versionName version
     }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -69,16 +70,38 @@ ext {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar', '*.so'])
-    compile 'com.cronutils:cron-utils:3.1.2'
-    compile project(':backbone')
-    testCompile 'junit:junit:4.12'
-    testCompile 'org.robolectric:robolectric:3.0'
-    testCompile 'org.mockito:mockito-core:1.10.19'
-    compile 'com.squareup.retrofit2:retrofit:2.0.0-beta3'
-    compile 'com.squareup.retrofit2:converter-gson:2.0.0-beta3'
-    compile 'com.squareup.retrofit2:adapter-rxjava:2.0.0-beta3'
-    compile 'com.squareup.okhttp3:logging-interceptor:3.0.0-RC1'
+    implementation fileTree(dir: 'libs', include: ['*.jar', '*.so'])
+    implementation 'com.cronutils:cron-utils:3.1.2'
+    implementation project(':foundation')
+    implementation project(':authentication')
+    implementation project(':storage')
+    implementation project(':consent')
+
+    implementation project(':backbone')
+
+    implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'androidx.legacy:legacy-preference-v14:1.0.0'
+    implementation 'com.google.android.material:material:1.0.0'
+
+    implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
+    implementation 'com.jakewharton.rxbinding:rxbinding:0.4.0'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'com.jakewharton.rxbinding:rxbinding-support-v4:0.4.0'
+    implementation 'com.jakewharton.rxbinding:rxbinding-appcompat-v7:0.4.0'
+    implementation 'com.jakewharton.rxbinding:rxbinding-design:0.4.0'
+
+    implementation 'co.touchlab.squeaky:squeaky-query:0.4.0.0'
+    kapt 'co.touchlab.squeaky:squeaky-processor:0.4.0.0'
+
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.robolectric:robolectric:3.0'
+    testImplementation 'org.mockito:mockito-core:1.10.19'
+    implementation 'com.squareup.retrofit2:retrofit:2.0.0-beta3'
+    implementation 'com.squareup.retrofit2:converter-gson:2.0.0-beta3'
+    implementation 'com.squareup.retrofit2:adapter-rxjava:2.0.0-beta3'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.0.0-RC1'
 
 }
 

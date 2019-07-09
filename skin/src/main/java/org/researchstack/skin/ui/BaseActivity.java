@@ -5,20 +5,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
-import android.support.design.widget.Snackbar;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.LocalBroadcastManager;
+import com.google.android.material.snackbar.Snackbar;
+import androidx.core.content.ContextCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import org.researchstack.backbone.StorageAccess;
-import org.researchstack.backbone.result.TaskResult;
-import org.researchstack.backbone.task.Task;
 import org.researchstack.backbone.ui.PinCodeActivity;
 import org.researchstack.backbone.ui.ViewTaskActivity;
-import org.researchstack.backbone.utils.LogExt;
 import org.researchstack.backbone.utils.ObservableUtils;
+import org.researchstack.feature.storage.StorageAccess;
+import org.researchstack.foundation.components.utils.LogExt;
+import org.researchstack.foundation.core.models.result.TaskResult;
+import org.researchstack.foundation.core.models.task.Task;
 import org.researchstack.skin.AppPrefs;
 import org.researchstack.skin.DataProvider;
 import org.researchstack.skin.R;
@@ -124,7 +124,7 @@ public class BaseActivity extends PinCodeActivity {
         }
 
         // Try id for lib level snackbar id
-        id = android.support.design.R.id.snackbar_text;
+        id = com.google.android.material.R.id.snackbar_text;
         tv = (TextView) snackbar.getView().findViewById(id);
         if (tv != null) {
             return tv;

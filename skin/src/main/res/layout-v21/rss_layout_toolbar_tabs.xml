@@ -7,13 +7,13 @@
     android:orientation="vertical"
     android:outlineProvider="bounds">
 
-    <android.support.v7.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:theme="?attr/toolbarTheme" />
 
-    <org.researchstack.backbone.ui.views.IconTabLayout
+    <org.researchstack.foundation.components.common.ui.views.IconTabLayout
         android:id="@+id/tabLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
