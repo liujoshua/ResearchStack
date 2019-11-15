@@ -11,7 +11,7 @@ import org.researchstack.foundation.core.interfaces.IStep
  * to an instance since the Android framework controls the instantiation of ViewModels.
  */
 class StepPresentationViewModelFactory<StepType : IStep>
-(val taskPresentationViewModel: TaskPresentationViewModel<StepType>) : ViewModel() {
+(val taskPresentationViewModel: ITaskPresentationViewModel<StepType>) : ViewModel() {
     fun create(): ViewModelProvider.Factory {
         return object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {

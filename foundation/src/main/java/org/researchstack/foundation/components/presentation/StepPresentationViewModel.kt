@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  * that have yet to be saved as a StepResult).
  */
 open class StepPresentationViewModel<StepType : IStep>
-(val taskPresentationViewModel: TaskPresentationViewModel<in StepType>) : ViewModel() {
+(val taskPresentationViewModel: ITaskPresentationViewModel<in StepType>) : ViewModel() {
     private val addedResult: AtomicBoolean = AtomicBoolean()
     private val startTime: Instant = Instant.now()
 

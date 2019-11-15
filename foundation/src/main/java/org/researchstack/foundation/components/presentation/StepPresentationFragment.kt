@@ -23,7 +23,7 @@ abstract class StepPresentationFragment<StepType : UIStep, ResultType : IResult>
 
     protected lateinit var stepPresentationViewModel: StepPresentationViewModel<StepType>
 
-    protected lateinit var taskPresentationFragment: TaskPresentationFragment<StepType, ResultType, ITask>
+    protected lateinit var taskPresentationFragment: ITaskPresentationFragment<StepType, ResultType, ITask>
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {

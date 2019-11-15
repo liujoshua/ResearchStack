@@ -21,7 +21,7 @@ class TaskPresentationViewModelFactory<StepType : IStep>
     fun create(taskIdentifier: String, taskRunUUID: UUID): ViewModelProvider.Factory {
         return object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                if (modelClass.isAssignableFrom(TaskPresentationViewModel::class.java)) {
+                if (modelClass.isAssignableFrom(ITaskPresentationViewModel::class.java)) {
 
                     @Suppress("UNCHECKED_CAST")
                     return TaskPresentationViewModel(taskNavigator, taskProvider, taskIdentifier, taskRunUUID) as T

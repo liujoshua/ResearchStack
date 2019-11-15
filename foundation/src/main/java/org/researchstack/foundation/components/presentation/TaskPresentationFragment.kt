@@ -12,18 +12,18 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import org.researchstack.foundation.R
+import org.researchstack.foundation.components.presentation.ITaskPresentationFragment.OnTaskExitListener
 import org.researchstack.foundation.components.presentation.interfaces.IStepFragmentProvider
 import org.researchstack.foundation.core.interfaces.IResult
 import org.researchstack.foundation.core.interfaces.ITask
 import org.researchstack.foundation.core.interfaces.UIStep
-import org.researchstack.foundation.core.models.result.TaskResult
 import java.util.*
 
 /**
  * Base Fragment that presents a Task for the user to complete.
  */
 abstract class TaskPresentationFragment<StepType : UIStep, ResultType : IResult, TaskType : ITask>
-    : androidx.fragment.app.Fragment() {
+    : androidx.fragment.app.Fragment(), ITaskPresentationFragment<StepType, ResultType, TaskType> {
 
     companion object {
         @JvmField
@@ -46,14 +46,6 @@ abstract class TaskPresentationFragment<StepType : UIStep, ResultType : IResult,
         }
     }
 
-    interface OnTaskExitListener {
-        enum class Status {
-            CANCELLED, FINISHED
-        }
-
-        fun onTaskExit(status: Status, taskResult: TaskResult)
-    }
-
     fun inject(taskViewModelFactory: TaskPresentationViewModelFactory<StepType>,
                stepFragmentProvider: IStepFragmentProvider<StepType>) {
         this.taskViewModelFactory = taskViewModelFactory
@@ -66,7 +58,7 @@ abstract class TaskPresentationFragment<StepType : UIStep, ResultType : IResult,
     private lateinit var stepFragmentProvider: IStepFragmentProvider<StepType>
 
 
-    lateinit var taskPresentationViewModel: TaskPresentationViewModel<StepType>
+    lateinit var taskPresentationViewModel: ITaskPresentationViewModel<StepType>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -91,7 +83,7 @@ abstract class TaskPresentationFragment<StepType : UIStep, ResultType : IResult,
                 .get(TaskPresentationViewModel::class.java) as TaskPresentationViewModel<StepType>
 
         taskPresentationViewModel.getTaskNavigatorStateLiveData()
-                .observe(this, Observer<TaskPresentationViewModel.TaskNavigatorState<StepType>>
+                .observe(this, Observer<ITaskPresentationViewModel.TaskNavigatorState<StepType>>
                 { taskNavigatorState -> this.showStep(taskNavigatorState) })
     }
 
@@ -109,9 +101,9 @@ abstract class TaskPresentationFragment<StepType : UIStep, ResultType : IResult,
         taskPresentationViewModel.goBack()
     }
 
-    private fun showStep(taskNavigatorState: TaskPresentationViewModel.TaskNavigatorState<StepType>) {
+    private fun showStep(taskNavigatorState: ITaskPresentationViewModel.TaskNavigatorState<StepType>) {
         if (taskNavigatorState.currentStep == null) {
-            val exitStatus: OnTaskExitListener.Status =
+            val exitStatus: ITaskPresentationFragment.OnTaskExitListener.Status =
                     if (taskNavigatorState.navDirection == NavDirection.SHIFT_RIGHT) {
                         OnTaskExitListener.Status.CANCELLED
                     } else {
@@ -158,7 +150,7 @@ abstract class TaskPresentationFragment<StepType : UIStep, ResultType : IResult,
         }
     }
 
-    fun showConfirmExitDialog() {
+    override fun showConfirmExitDialog() {
         val alertDialog = AlertDialog.Builder(this.activity!!).setTitle(
                 "Are you sure you want to exit?")
                 .setMessage(R.string.lorem_medium)
