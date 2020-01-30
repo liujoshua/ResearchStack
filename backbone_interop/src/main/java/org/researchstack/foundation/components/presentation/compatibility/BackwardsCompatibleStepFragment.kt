@@ -16,12 +16,9 @@ import org.researchstack.backbone.ui.step.layout.StepLayout
 import org.researchstack.foundation.R
 import org.researchstack.foundation.components.presentation.ActionType
 import org.researchstack.foundation.components.presentation.StepPresentationFragment
-import org.researchstack.foundation.components.presentation.StepPresentationViewModel
-import org.researchstack.foundation.components.presentation.StepPresentationViewModelFactory
 import org.researchstack.foundation.components.presentation.interfaces.OnBackPressed
 import org.researchstack.foundation.core.interfaces.IResult
 import org.researchstack.foundation.core.interfaces.UIStep
-import org.researchstack.backbone.step.Step as BackboneStep
 
 /**
  * Delegates between :backbone StepLayout, StepCallback classes and :foundation Fragments.
@@ -64,7 +61,7 @@ class BackwardsCompatibleStepFragment : StepPresentationFragment<UIStep, IResult
         val containerView: FrameLayout = view.findViewById(R.id.rsf_content_layout)
 
         val step = stepPresentationViewModel.step
-val backboneStep = stepAdapterFactory.create(step)
+        val backboneStep = stepAdapterFactory.create(step)
         val stepResult = taskPresentationViewModel.getTaskNavigatorStateLiveData().value!!.taskResult.getStepResult(step.identifier)
         val backboneStepResult = stepResult?.let { resultFactory.create(it) }
 
