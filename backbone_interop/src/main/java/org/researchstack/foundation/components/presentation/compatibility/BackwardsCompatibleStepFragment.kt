@@ -6,9 +6,9 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
+import androidx.lifecycle.ViewModelProvider
 import org.researchstack.backbone.interop.ResultFactory
+import org.researchstack.backbone.interop.StepAdapterFactory
 import org.researchstack.backbone.result.StepResult
 import org.researchstack.backbone.step.Step
 import org.researchstack.backbone.ui.callbacks.StepCallbacks
@@ -16,10 +16,12 @@ import org.researchstack.backbone.ui.step.layout.StepLayout
 import org.researchstack.foundation.R
 import org.researchstack.foundation.components.presentation.ActionType
 import org.researchstack.foundation.components.presentation.StepPresentationFragment
+import org.researchstack.foundation.components.presentation.StepPresentationViewModel
 import org.researchstack.foundation.components.presentation.StepPresentationViewModelFactory
 import org.researchstack.foundation.components.presentation.interfaces.OnBackPressed
 import org.researchstack.foundation.core.interfaces.IResult
 import org.researchstack.foundation.core.interfaces.UIStep
+import org.researchstack.backbone.step.Step as BackboneStep
 
 /**
  * Delegates between :backbone StepLayout, StepCallback classes and :foundation Fragments.
@@ -31,13 +33,20 @@ class BackwardsCompatibleStepFragment : StepPresentationFragment<UIStep, IResult
          * Returns an instance of this fragment that delegates for a given StepLayout.
          */
         @JvmStatic
-        fun newInstance(stepLayout: StepLayout, stepPresentationViewModelFactory: StepPresentationViewModelFactory<UIStep>, resultFactory: ResultFactory): BackwardsCompatibleStepFragment {
+        fun newInstance(stepLayout: StepLayout, stepAdapterFactory: StepAdapterFactory, stepPresentationViewModelFactory: ViewModelProvider.Factory, resultFactory: ResultFactory): BackwardsCompatibleStepFragment {
             val fragment = BackwardsCompatibleStepFragment()
             fragment.stepLayout = stepLayout
+            fragment.inject(stepAdapterFactory)
             fragment.inject(stepPresentationViewModelFactory)
             fragment.inject(resultFactory)
             return fragment
         }
+    }
+
+    private lateinit var stepAdapterFactory: StepAdapterFactory
+
+    fun inject( stepAdapterFactory: StepAdapterFactory) {
+        this.stepAdapterFactory=stepAdapterFactory
     }
 
     // inject
@@ -54,6 +63,12 @@ class BackwardsCompatibleStepFragment : StepPresentationFragment<UIStep, IResult
         val view = inflater.inflate(getLayoutId(), container, false)
         val containerView: FrameLayout = view.findViewById(R.id.rsf_content_layout)
 
+        val step = stepPresentationViewModel.step
+val backboneStep = stepAdapterFactory.create(step)
+        val stepResult = taskPresentationViewModel.getTaskNavigatorStateLiveData().value!!.taskResult.getStepResult(step.identifier)
+        val backboneStepResult = stepResult?.let { resultFactory.create(it) }
+
+        stepLayout.initialize(backboneStep, backboneStepResult)
         stepLayout.setCallbacks(this)
         val lp = getLayoutParams(stepLayout)
         containerView.addView(stepLayout.layout, 0, lp)
@@ -71,7 +86,6 @@ class BackwardsCompatibleStepFragment : StepPresentationFragment<UIStep, IResult
         }
         return lp
     }
-
     /**
      * Delegates StepCallbacks Step actions to :foundation equivalents.
      */
@@ -101,7 +115,7 @@ class BackwardsCompatibleStepFragment : StepPresentationFragment<UIStep, IResult
         return R.layout.rsf_fragment_step_compat
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item?.itemId == android.R.id.home) {
             notifyStepOfBackPressed()
         }
@@ -112,7 +126,7 @@ class BackwardsCompatibleStepFragment : StepPresentationFragment<UIStep, IResult
         return notifyStepOfBackPressed()
     }
 
-    fun notifyStepOfBackPressed() : Boolean {
+    fun notifyStepOfBackPressed(): Boolean {
         stepLayout.isBackEventConsumed
         return true
     }
