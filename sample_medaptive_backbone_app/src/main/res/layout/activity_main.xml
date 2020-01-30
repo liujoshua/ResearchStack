@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="org.sagebionetworks.researchstack.sample_sage_backbone_app.SageMainActivity"
+    tools:context="org.sagebionetworks.researchstack.sample_sage_backbone_app.MainActivity"
     >
 
     <include layout="@layout/rsb_layout_toolbar"/>

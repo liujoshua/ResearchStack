@@ -1,2 +1,5 @@
-include ':foundation', ':authentication', ':chart', ':storage', ':backbone_interop', ':sage_backbone_interop', ':sample_sage_backbone_app'
-include ':sample_backbone_app'
+include ':foundation', ':authentication', ':chart', ':storage'
+
+include ':backbone_interop',':sample_backbone_app'
+include ':sage_backbone_interop', ':sample_sage_backbone_app'
+include ':medaptive_backbone_interop', ':sample_medaptive_backbone_app'

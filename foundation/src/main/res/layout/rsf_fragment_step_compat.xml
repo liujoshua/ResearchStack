@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
-    tools:context=".components.presentation.compatibility.BackwardsCompatibleStepFragment">
+    tools:context="org.researchstack.backbone.interop.presentation.compatibility.BackwardsCompatibleStepFragment">
 
     <FrameLayout
         android:id="@+id/rsf_content_layout"
