@@ -16,7 +16,7 @@ import org.researchstack.foundation.core.interfaces.UIStep
 class BackwardsCompatibleStepFragmentProvider(val context: Context, val stepAdapterFactory: StepAdapterFactory, val resultFactory: ResultFactory) : IStepFragmentProvider<UIStep> {
 
     // this should really take a backbone step, taking a foundation UIStep for now to make it simpler to iterate on dependencies
-    override fun stepFragment(step: UIStep,stepPresentationViewModelFactory: StepPresentationViewModelFactory<UIStep>): Fragment? {
+    override fun stepFragment(step: UIStep, stepPresentationViewModelFactory: StepPresentationViewModelFactory<UIStep>): Fragment? {
 
         try {
             val backboneStep = stepAdapterFactory.create(step)

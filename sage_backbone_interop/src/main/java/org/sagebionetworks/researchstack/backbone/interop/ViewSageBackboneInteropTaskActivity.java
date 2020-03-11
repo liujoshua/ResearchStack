@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
@@ -14,22 +15,21 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import org.jetbrains.annotations.NotNull;
+import org.researchstack.foundation.components.common.task.OrderedTask;
+import org.researchstack.foundation.components.presentation.ITaskProvider;
+import org.researchstack.foundation.components.presentation.TaskPresentationFragment;
+import org.researchstack.foundation.components.presentation.TaskPresentationViewModelFactory;
+import org.researchstack.foundation.components.presentation.interfaces.IStepFragmentProvider;
+import org.researchstack.foundation.components.presentation.interfaces.ITaskNavigator;
+import org.researchstack.foundation.components.presentation.interfaces.OnBackPressed;
+import org.researchstack.foundation.core.interfaces.IStep;
+import org.researchstack.foundation.core.models.step.Step;
 import org.sagebionetworks.researchstack.backbone.interop.presentation.BackwardsCompatibleStepFragmentProvider;
 import org.sagebionetworks.researchstack.backbone.interop.presentation.BackwardsCompatibleTaskPresentationFragment;
 import org.sagebionetworks.researchstack.backbone.result.StepResult;
 import org.sagebionetworks.researchstack.backbone.result.TaskResult;
 import org.sagebionetworks.researchstack.backbone.task.Task;
-import org.sagebionetworks.researchstack.backbone.ui.PinCodeActivity;
 import org.sagebionetworks.researchstack.backbone.ui.ViewTaskActivity;
-import org.researchstack.foundation.components.common.task.OrderedTask;
-import org.researchstack.foundation.components.presentation.ITaskProvider;
-import org.researchstack.foundation.components.presentation.TaskPresentationFragment;
-import org.researchstack.foundation.components.presentation.TaskPresentationViewModelFactory;
-
-import org.researchstack.foundation.components.presentation.interfaces.IStepFragmentProvider;
-import org.researchstack.foundation.components.presentation.interfaces.ITaskNavigator;
-import org.researchstack.foundation.core.interfaces.IStep;
-import org.researchstack.foundation.core.models.step.Step;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,6 +42,10 @@ import static org.threeten.bp.DateTimeUtils.toDate;
  * Replicates the behavior of ViewTaskActivity while running :backbone tasks on :foundation.
  */
 public class ViewSageBackboneInteropTaskActivity extends ViewTaskActivity implements TaskPresentationFragment.OnTaskExitListener {
+    public static final int CONTENT_VIEW_ID = R.id.rsb_content_container;
+
+    Map<String, org.sagebionetworks.researchstack.backbone.step.Step> backboneSteps = new HashMap<>();
+    private Fragment taskFragment;
 
     /**
      * @param context application context
@@ -54,12 +58,15 @@ public class ViewSageBackboneInteropTaskActivity extends ViewTaskActivity implem
         return intent;
     }
 
-    private Fragment taskFragment;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         super.setResult(RESULT_CANCELED);
+
+        FrameLayout frame = new FrameLayout(this);
+        frame.setId(CONTENT_VIEW_ID);
+        setContentView(frame, new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
 
         Step currentStep = null;
         Task task;
@@ -79,6 +86,22 @@ public class ViewSageBackboneInteropTaskActivity extends ViewTaskActivity implem
         task.validateParameters();
     }
 
+    @Override
+    public void onBackPressed() {
+        if (!(taskFragment instanceof OnBackPressed) || !((OnBackPressed) taskFragment).onBackPressed()) {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (android.R.id.home == item.getItemId()) {
+            if (taskFragment instanceof OnBackPressed) {
+                return ((OnBackPressed) taskFragment).onBackPressed();
+            }
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     @Override
     public void onDataReady() {
@@ -86,7 +109,7 @@ public class ViewSageBackboneInteropTaskActivity extends ViewTaskActivity implem
 
         // wait for data ready and then add TaskPrsentationFragment to the view hierarchy
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.add(getViewSwitcherRootId(), taskFragment).commit();
+        ft.add(CONTENT_VIEW_ID, taskFragment).commit();
     }
 
     @Override
@@ -96,6 +119,11 @@ public class ViewSageBackboneInteropTaskActivity extends ViewTaskActivity implem
         finish();
     }
 
+    // region first stab at dependencies
+
+    //
+    // work on progress, fleshing out mappers/factories
+    //
 
     @Override
     public void onTaskExit(@NotNull Status status, @NotNull org.researchstack.foundation.core.models.result.TaskResult taskResult) {
@@ -111,12 +139,6 @@ public class ViewSageBackboneInteropTaskActivity extends ViewTaskActivity implem
             finish();
         }
     }
-
-    // region first stab at dependencies
-
-    //
-    // work on progress, fleshing out mappers/factories
-    //
 
     @VisibleForTesting
     TaskResult convert(@NotNull org.researchstack.foundation.core.models.result.TaskResult taskResult) {
@@ -164,8 +186,6 @@ public class ViewSageBackboneInteropTaskActivity extends ViewTaskActivity implem
         return new BackwardsCompatibleStepFragmentProvider(this, getStepAdapterFactory(), getResultFactory());
     }
 
-    Map<String, org.sagebionetworks.researchstack.backbone.step.Step> backboneSteps = new HashMap<>();
-
     @VisibleForTesting
     StepAdapterFactory getStepAdapterFactory() {
         return new StepAdapterFactory() {
@@ -178,7 +198,11 @@ public class ViewSageBackboneInteropTaskActivity extends ViewTaskActivity implem
             @Override
             public IStep create(org.sagebionetworks.researchstack.backbone.step.Step step) {
                 backboneSteps.put(step.getIdentifier(), step);
-                return new Step(step.getIdentifier(), step.getTitle());
+                org.researchstack.foundation.core.models.step.Step foundationStep = new Step(step.getIdentifier(), step.getTitle());
+                // TaskPresentationFragment uses StepTitle to set action bar.
+                // Since setting StepTitle is done in Foundation and not delegated to backbone, we need to copy to Foundation step
+                foundationStep.setStepTitle(getApplicationContext().getResources().getString(step.getStepTitle()));
+                return foundationStep;
             }
         };
     }

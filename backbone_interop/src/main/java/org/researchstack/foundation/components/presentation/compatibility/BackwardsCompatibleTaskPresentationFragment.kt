@@ -8,7 +8,7 @@ import org.researchstack.foundation.components.presentation.interfaces.IStepFrag
 import org.researchstack.foundation.core.models.result.TaskResult
 import org.researchstack.foundation.core.models.step.Step
 import org.researchstack.foundation.core.models.task.Task
-import java.util.*
+import java.util.UUID
 
 /**
  * Delegates some actions for :backbone ViewTaskActivity, hosts BackwardsCompatibleTaskPresentationFragments
