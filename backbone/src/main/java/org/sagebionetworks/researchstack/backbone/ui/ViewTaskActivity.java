@@ -22,6 +22,7 @@ import org.sagebionetworks.researchstack.backbone.task.OrderedTask;
 import org.sagebionetworks.researchstack.backbone.task.Task;
 import org.sagebionetworks.researchstack.backbone.ui.callbacks.StepCallbacks;
 import org.sagebionetworks.researchstack.backbone.ui.step.layout.StepLayout;
+import org.sagebionetworks.researchstack.backbone.ui.step.layout.SurveyStepLayout;
 import org.sagebionetworks.researchstack.backbone.ui.views.StepSwitcher;
 import org.sagebionetworks.researchstack.backbone.utils.LogExt;
 import org.sagebionetworks.researchstack.backbone.utils.StepLayoutHelper;
@@ -30,9 +31,10 @@ import java.util.Date;
 
 public class ViewTaskActivity extends PinCodeActivity implements StepCallbacks
 {
-    public static final String EXTRA_TASK        = "ViewTaskActivity.ExtraTask";
-    public static final String EXTRA_TASK_RESULT = "ViewTaskActivity.ExtraTaskResult";
-    public static final String EXTRA_STEP        = "ViewTaskActivity.ExtraStep";
+    public static final String EXTRA_TASK           = "ViewTaskActivity.ExtraTask";
+    public static final String EXTRA_TASK_RESULT    = "ViewTaskActivity.ExtraTaskResult";
+    public static final String EXTRA_STEP           = "ViewTaskActivity.ExtraStep";
+    public static final String EXTRA_READONLY       = "ViewTaskActivity.ReadOnly";
 
     protected StepSwitcher root;
     protected Toolbar toolbar;
@@ -49,6 +51,7 @@ public class ViewTaskActivity extends PinCodeActivity implements StepCallbacks
     }
     protected TaskResult taskResult;
 
+    private boolean readOnlyMode = false;
     protected int currentStepAction;
 
     public static Intent newIntent(Context context, Task task)
@@ -70,6 +73,8 @@ public class ViewTaskActivity extends PinCodeActivity implements StepCallbacks
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         root = (StepSwitcher) findViewById(getViewSwitcherRootId());
+
+        readOnlyMode = getIntent().getBooleanExtra(EXTRA_READONLY, false);
 
         if(savedInstanceState == null)
         {
@@ -199,6 +204,10 @@ public class ViewTaskActivity extends PinCodeActivity implements StepCallbacks
 
         // Return the Class & constructor
         StepLayout stepLayout = StepLayoutHelper.createLayoutFromStep(step, this);
+        if (stepLayout instanceof SurveyStepLayout) {
+            SurveyStepLayout surveyStepLayout = (SurveyStepLayout)stepLayout;
+            surveyStepLayout.setReadOnlyMode(readOnlyMode);
+        }
         setupStepLayoutBeforeInitializeIsCalled(stepLayout);
         stepLayout.initialize(step, result);
 
@@ -223,6 +232,7 @@ public class ViewTaskActivity extends PinCodeActivity implements StepCallbacks
         taskResult.setEndDate(new Date());
         Intent resultIntent = new Intent();
         resultIntent.putExtra(EXTRA_TASK_RESULT, taskResult);
+        resultIntent.putExtra(EXTRA_TASK, task);
         setResult(RESULT_OK, resultIntent);
         finish();
     }
@@ -302,6 +312,7 @@ public class ViewTaskActivity extends PinCodeActivity implements StepCallbacks
         outState.putSerializable(EXTRA_TASK, task);
         outState.putSerializable(EXTRA_TASK_RESULT, taskResult);
         outState.putSerializable(EXTRA_STEP, currentStep);
+        outState.putBoolean(EXTRA_READONLY, readOnlyMode);
     }
 
     protected void notifyStepOfBackPress()

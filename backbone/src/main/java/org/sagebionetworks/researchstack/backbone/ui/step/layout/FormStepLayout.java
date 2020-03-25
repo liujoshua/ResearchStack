@@ -2,6 +2,7 @@ package org.sagebionetworks.researchstack.backbone.ui.step.layout;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.os.Handler;
 import android.os.Parcelable;
 import android.support.annotation.IdRes;
 import android.support.annotation.MainThread;
@@ -338,7 +339,9 @@ public class FormStepLayout extends FixedSubmitBarLayout implements StepLayout {
     protected void updateAllQuestionSteps(boolean skipped) {
         for (FormStepData stepData : subQuestionStepData) {
             StepResult result = stepData.stepBody.getStepResult(skipped);
-            stepResult.getResults().put(stepData.step.getIdentifier(), result);
+            if (result != null) {
+                stepResult.getResults().put(stepData.step.getIdentifier(), result);
+            }
         }
     }
 
@@ -347,11 +350,19 @@ public class FormStepLayout extends FixedSubmitBarLayout implements StepLayout {
         boolean isAnswerValid = isAnswerValid(true);
         if (isAnswerValid)
         {
-            if (formStep.isAutoFocusFirstEditText()) {
-                hideKeyboard();
+            // WORKAROUND : Hide softkeyboard before transaction
+            InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null && container != null) {
+                imm.hideSoftInputFromWindow(container.getWindowToken(), 0);
             }
-            updateAllQuestionSteps(false);
-            onComplete();
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    updateAllQuestionSteps(false);
+                    onComplete();
+                }
+            }, 100);
         }
     }
 
@@ -402,10 +413,14 @@ public class FormStepLayout extends FixedSubmitBarLayout implements StepLayout {
 
         if(!isAnswerValid && showErrorAlertOnInvalid)
         {
-            String invalidReason = android.text.TextUtils.join(", ", invalidReasons) + ".";
-            Toast.makeText(getContext(), invalidReason, Toast.LENGTH_SHORT).show();
+            showErrorAlertWhenInvalid(invalidReasons);
         }
         return isAnswerValid;
+    }
+
+    protected void showErrorAlertWhenInvalid(List<String> invalidReasons) {
+        String invalidReason = android.text.TextUtils.join(", ", invalidReasons) + ".";
+        Toast.makeText(getContext(), invalidReason, Toast.LENGTH_SHORT).show();
     }
 
     /**

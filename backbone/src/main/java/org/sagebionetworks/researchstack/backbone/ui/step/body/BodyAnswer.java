@@ -12,9 +12,9 @@ public class BodyAnswer {
 
     private boolean isValid;
     private int reason;
-    private String[] params;
+    private Object[] params;
 
-    public BodyAnswer(boolean isValid, @StringRes int reason, String... params) {
+    public BodyAnswer(boolean isValid, @StringRes int reason, Object... params) {
         this.isValid = isValid;
         this.reason = reason;
         this.params = params;
@@ -29,7 +29,7 @@ public class BodyAnswer {
         return reason;
     }
 
-    public String[] getParams() {
+    public Object[] getParams() {
         return params;
     }
 
