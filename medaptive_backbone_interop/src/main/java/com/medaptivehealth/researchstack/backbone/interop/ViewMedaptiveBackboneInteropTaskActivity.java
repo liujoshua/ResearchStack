@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -14,6 +16,8 @@ import androidx.fragment.app.FragmentTransaction;
 
 import org.jetbrains.annotations.NotNull;
 
+import com.medaptivehealth.researchstack.backbone.answerformat.AnswerFormat;
+import com.medaptivehealth.researchstack.backbone.answerformat.UnknownAnswerFormat;
 import com.medaptivehealth.researchstack.backbone.interop.presentation.BackwardsCompatibleStepFragmentProvider;
 import com.medaptivehealth.researchstack.backbone.interop.presentation.BackwardsCompatibleTaskPresentationFragment;
 import com.medaptivehealth.researchstack.backbone.result.StepResult;
@@ -27,6 +31,7 @@ import org.researchstack.foundation.components.presentation.TaskPresentationView
 
 import org.researchstack.foundation.components.presentation.interfaces.IStepFragmentProvider;
 import org.researchstack.foundation.components.presentation.interfaces.ITaskNavigator;
+import org.researchstack.foundation.components.presentation.interfaces.OnBackPressed;
 import org.researchstack.foundation.core.interfaces.IStep;
 import org.researchstack.foundation.core.models.step.Step;
 
@@ -41,6 +46,10 @@ import static org.threeten.bp.DateTimeUtils.toDate;
  * Replicates the behavior of ViewTaskActivity while running :backbone tasks on :foundation.
  */
 public class ViewMedaptiveBackboneInteropTaskActivity extends ViewTaskActivity implements TaskPresentationFragment.OnTaskExitListener {
+    public static final int CONTENT_VIEW_ID = R.id.rsb_content_container;
+
+    Map<String,  com.medaptivehealth.researchstack.backbone.step.Step> backboneSteps = new HashMap<>();
+    private Fragment taskFragment;
 
     /**
      * @param context application context
@@ -53,12 +62,15 @@ public class ViewMedaptiveBackboneInteropTaskActivity extends ViewTaskActivity i
         return intent;
     }
 
-    private Fragment taskFragment;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         super.setResult(RESULT_CANCELED);
+
+        FrameLayout frame = new FrameLayout(this);
+        frame.setId(CONTENT_VIEW_ID);
+        setContentView(frame, new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
 
         Step currentStep = null;
         Task task;
@@ -78,6 +90,22 @@ public class ViewMedaptiveBackboneInteropTaskActivity extends ViewTaskActivity i
         task.validateParameters();
     }
 
+    @Override
+    public void onBackPressed() {
+        if (!(taskFragment instanceof OnBackPressed) || !((OnBackPressed) taskFragment).onBackPressed()) {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (android.R.id.home == item.getItemId()) {
+            if (taskFragment instanceof OnBackPressed) {
+                return ((OnBackPressed) taskFragment).onBackPressed();
+            }
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     @Override
     public void onDataReady() {
@@ -85,7 +113,7 @@ public class ViewMedaptiveBackboneInteropTaskActivity extends ViewTaskActivity i
 
         // wait for data ready and then add TaskPrsentationFragment to the view hierarchy
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.add(getViewSwitcherRootId(), taskFragment).commit();
+        ft.add(CONTENT_VIEW_ID, taskFragment).commit();
     }
 
     @Override
@@ -142,6 +170,8 @@ public class ViewMedaptiveBackboneInteropTaskActivity extends ViewTaskActivity i
             public <E> StepResult<E> create(@NotNull org.researchstack.foundation.core.models.result.StepResult<E> result) {
                 StepResult<E> stepResult = new StepResult<>(new com.medaptivehealth.researchstack.backbone.step.Step(result.getIdentifier()));
 
+                // Hack to avoid null pointer for AnswerFormat in DatabaseHelper
+                stepResult.setAnswerFormat(new UnknownAnswerFormat());
                 stepResult.setResults(result.getResults());
 
                 return stepResult;
@@ -163,8 +193,6 @@ public class ViewMedaptiveBackboneInteropTaskActivity extends ViewTaskActivity i
         return new BackwardsCompatibleStepFragmentProvider(this, getStepAdapterFactory(), getResultFactory());
     }
 
-    Map<String, com.medaptivehealth.researchstack.backbone.step.Step> backboneSteps = new HashMap<>();
-
     @VisibleForTesting
     StepAdapterFactory getStepAdapterFactory() {
         return new StepAdapterFactory() {
@@ -177,7 +205,11 @@ public class ViewMedaptiveBackboneInteropTaskActivity extends ViewTaskActivity i
             @Override
             public IStep create(com.medaptivehealth.researchstack.backbone.step.Step step) {
                 backboneSteps.put(step.getIdentifier(), step);
-                return new Step(step.getIdentifier(), step.getTitle());
+                org.researchstack.foundation.core.models.step.Step foundationStep = new Step(step.getIdentifier(), step.getTitle());
+                // TaskPresentationFragment uses StepTitle to set action bar.
+                // Since setting StepTitle is done in Foundation and not delegated to backbone, we need to copy to Foundation step
+                foundationStep.setStepTitle(getApplicationContext().getResources().getString(step.getStepTitle()));
+                return foundationStep;
             }
         };
     }

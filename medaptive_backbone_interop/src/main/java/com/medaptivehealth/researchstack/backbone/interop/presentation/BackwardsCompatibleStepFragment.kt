@@ -16,26 +16,29 @@ import org.researchstack.foundation.components.presentation.StepPresentationView
 import org.researchstack.foundation.core.interfaces.IResult
 import org.researchstack.foundation.core.interfaces.UIStep
 import com.medaptivehealth.researchstack.backbone.interop.ResultFactory
+import com.medaptivehealth.researchstack.backbone.interop.StepAdapterFactory
 import com.medaptivehealth.researchstack.backbone.result.StepResult
 import com.medaptivehealth.researchstack.backbone.step.Step
 import com.medaptivehealth.researchstack.backbone.ui.callbacks.StepCallbacks
 import com.medaptivehealth.researchstack.backbone.ui.step.layout.StepLayout
+import org.researchstack.foundation.components.presentation.interfaces.OnBackPressed
 
 /**
  * Delegates between :backbone StepLayout, StepCallback classes and :foundation Fragments.
  */
-class BackwardsCompatibleStepFragment : StepPresentationFragment<UIStep, IResult>(), StepCallbacks {
+class BackwardsCompatibleStepFragment : StepPresentationFragment<UIStep, IResult>(), StepCallbacks, OnBackPressed {
 
     companion object {
         /**
          * Returns an instance of this fragment that delegates for a given StepLayout.
          */
         @JvmStatic
-        fun newInstance(stepLayout: StepLayout, stepPresentationViewModelProviderFactory: ViewModelProvider.Factory, resultFactory: ResultFactory): BackwardsCompatibleStepFragment {
+        fun newInstance(stepLayout: StepLayout, stepAdapterFactory: StepAdapterFactory, stepPresentationViewModelProviderFactory: ViewModelProvider.Factory, resultFactory: ResultFactory): BackwardsCompatibleStepFragment {
             val fragment = BackwardsCompatibleStepFragment()
             fragment.stepLayout = stepLayout
             fragment.inject(stepPresentationViewModelProviderFactory)
             fragment.inject(resultFactory)
+            fragment.inject(stepAdapterFactory)
             return fragment
         }
     }
@@ -47,6 +50,13 @@ class BackwardsCompatibleStepFragment : StepPresentationFragment<UIStep, IResult
         this.resultFactory = resultFactory
     }
 
+    //inject
+    private lateinit var stepAdapterFactory: StepAdapterFactory
+
+    fun inject(stepAdapterFactory: StepAdapterFactory) {
+        this.stepAdapterFactory = stepAdapterFactory
+    }
+
     //this will implement the traditional step layout
     lateinit var stepLayout: StepLayout
 
@@ -54,18 +64,15 @@ class BackwardsCompatibleStepFragment : StepPresentationFragment<UIStep, IResult
         val view = inflater.inflate(getLayoutId(), container, false)
         val containerView: FrameLayout = view.findViewById(R.id.rsf_content_layout)
 
+        val step = stepPresentationViewModel.step
+        val backboneStep = stepAdapterFactory.create(step)
+        val stepResult = taskPresentationViewModel.getTaskNavigatorStateLiveData().value!!.taskResult.getStepResult(step.identifier)
+        val backboneStepResult = stepResult?.let { resultFactory.create(it) }
 
-        val toolbar = view.findViewById(R.id.toolbar) as Toolbar?
-
-
+        stepLayout.initialize(backboneStep, backboneStepResult)
         stepLayout.setCallbacks(this)
         val lp = getLayoutParams(stepLayout)
         containerView.addView(stepLayout.layout, 0, lp)
-
-
-        val appCompatActivity: AppCompatActivity = this.activity as AppCompatActivity
-        appCompatActivity.setSupportActionBar(toolbar)
-        appCompatActivity.supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         return view
     }
@@ -113,12 +120,16 @@ class BackwardsCompatibleStepFragment : StepPresentationFragment<UIStep, IResult
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item?.itemId == android.R.id.home) {
             notifyStepOfBackPressed()
-            return true
         }
         return super.onOptionsItemSelected(item)
     }
 
-    fun notifyStepOfBackPressed() {
+    override fun onBackPressed(): Boolean {
+        return notifyStepOfBackPressed()
+    }
+
+    fun notifyStepOfBackPressed(): Boolean {
         stepLayout.isBackEventConsumed
+        return true
     }
 }

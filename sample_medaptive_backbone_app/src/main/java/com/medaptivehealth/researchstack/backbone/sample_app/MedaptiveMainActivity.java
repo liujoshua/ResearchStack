@@ -393,7 +393,7 @@ public class MedaptiveMainActivity extends PinCodeActivity {
         String results = "";
         for (String id : taskResult.getResults().keySet()) {
             StepResult stepResult = taskResult.getStepResult(id);
-            results += id + ": " + stepResult.getResult().toString() + "\n";
+            results += id + ": " + stepResult.getResult() + "\n";
         }
 
         surveyAnswer.setText(results);
