@@ -284,7 +284,8 @@ public class SageMainActivity extends PinCodeActivity
 
     private void processConsentResult(TaskResult result)
     {
-        boolean consented = (boolean) result.getStepResult(CONSENT_DOC).getResult();
+        boolean consented = result != null && result.getStepResult(CONSENT_DOC) != null
+                && (boolean) result.getStepResult(CONSENT_DOC).getResult();
 
         if(consented)
         {
@@ -426,7 +427,7 @@ public class SageMainActivity extends PinCodeActivity
         for(String id : taskResult.getResults().keySet())
         {
             StepResult stepResult = taskResult.getStepResult(id);
-            results += id + ": " + stepResult.getResult().toString() + "\n";
+            results += id + ": " + stepResult.getResult() + "\n";
         }
 
         surveyAnswer.setText(results);

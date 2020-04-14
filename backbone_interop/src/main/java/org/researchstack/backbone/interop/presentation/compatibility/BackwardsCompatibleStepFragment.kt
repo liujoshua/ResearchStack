@@ -42,8 +42,8 @@ class BackwardsCompatibleStepFragment : StepPresentationFragment<UIStep, IResult
 
     private lateinit var stepAdapterFactory: StepAdapterFactory
 
-    fun inject( stepAdapterFactory: StepAdapterFactory) {
-        this.stepAdapterFactory=stepAdapterFactory
+    fun inject(stepAdapterFactory: StepAdapterFactory) {
+        this.stepAdapterFactory = stepAdapterFactory
     }
 
     // inject
@@ -83,6 +83,7 @@ class BackwardsCompatibleStepFragment : StepPresentationFragment<UIStep, IResult
         }
         return lp
     }
+
     /**
      * Delegates StepCallbacks Step actions to :foundation equivalents.
      */

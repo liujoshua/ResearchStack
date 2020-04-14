@@ -45,6 +45,8 @@ import static org.threeten.bp.DateTimeUtils.toDate;
  */
 public class ViewBackboneInteropTaskActivity extends PinCodeActivity implements TaskPresentationFragment.OnTaskExitListener {
     public static final int CONTENT_VIEW_ID = R.id.rsb_content_container;
+    Map<String, org.researchstack.backbone.step.Step> backboneSteps = new HashMap<>();
+    private Fragment taskFragment;
 
     /**
      * @param context application context
@@ -56,8 +58,6 @@ public class ViewBackboneInteropTaskActivity extends PinCodeActivity implements 
         intent.putExtra(ViewTaskActivity.EXTRA_TASK, task);
         return intent;
     }
-
-    private Fragment taskFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +87,6 @@ public class ViewBackboneInteropTaskActivity extends PinCodeActivity implements 
         task.validateParameters();
     }
 
-
     @Override
     public void onDataReady() {
         super.onDataReady();
@@ -104,6 +103,11 @@ public class ViewBackboneInteropTaskActivity extends PinCodeActivity implements 
         finish();
     }
 
+    // region first stab at dependencies
+
+    //
+    // work on progress, fleshing out mappers/factories
+    //
 
     @Override
     public void onTaskExit(@NotNull Status status, @NotNull org.researchstack.foundation.core.models.result.TaskResult taskResult) {
@@ -119,12 +123,6 @@ public class ViewBackboneInteropTaskActivity extends PinCodeActivity implements 
             finish();
         }
     }
-
-    // region first stab at dependencies
-
-    //
-    // work on progress, fleshing out mappers/factories
-    //
 
     @VisibleForTesting
     TaskResult convert(@NotNull org.researchstack.foundation.core.models.result.TaskResult taskResult) {
@@ -171,8 +169,6 @@ public class ViewBackboneInteropTaskActivity extends PinCodeActivity implements 
     IStepFragmentProvider getIStepFragmentProvider() {
         return new BackwardsCompatibleStepFragmentProvider(this, getStepAdapterFactory(), getResultFactory());
     }
-
-    Map<String, org.researchstack.backbone.step.Step> backboneSteps = new HashMap<>();
 
     @VisibleForTesting
     StepAdapterFactory getStepAdapterFactory() {

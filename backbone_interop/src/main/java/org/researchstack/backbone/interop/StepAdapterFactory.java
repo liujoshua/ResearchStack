@@ -5,5 +5,6 @@ import org.researchstack.foundation.core.interfaces.IStep;
 
 public interface StepAdapterFactory {
     Step create(IStep step);
+
     IStep create(Step step);
 }
