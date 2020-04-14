@@ -16,32 +16,33 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.Toolbar;
 
-import com.medaptivehealth.researchstack.backbone.StorageAccess;
-import com.medaptivehealth.researchstack.backbone.answerformat.AnswerFormat;
-import com.medaptivehealth.researchstack.backbone.answerformat.BooleanAnswerFormat;
-import com.medaptivehealth.researchstack.backbone.answerformat.ChoiceAnswerFormat;
-import com.medaptivehealth.researchstack.backbone.answerformat.DateAnswerFormat;
-import com.medaptivehealth.researchstack.backbone.answerformat.IntegerAnswerFormat;
-import com.medaptivehealth.researchstack.backbone.answerformat.TextAnswerFormat;
-import com.medaptivehealth.researchstack.backbone.answerformat.UnknownAnswerFormat;
 import com.medaptivehealth.researchstack.backbone.interop.ViewMedaptiveBackboneInteropTaskActivity;
-import com.medaptivehealth.researchstack.backbone.model.Choice;
-import com.medaptivehealth.researchstack.backbone.model.ConsentDocument;
-import com.medaptivehealth.researchstack.backbone.model.ConsentSection;
-import com.medaptivehealth.researchstack.backbone.model.ConsentSignature;
-import com.medaptivehealth.researchstack.backbone.result.StepResult;
-import com.medaptivehealth.researchstack.backbone.result.TaskResult;
-import com.medaptivehealth.researchstack.backbone.step.ConsentDocumentStep;
-import com.medaptivehealth.researchstack.backbone.step.ConsentSignatureStep;
-import com.medaptivehealth.researchstack.backbone.step.ConsentVisualStep;
-import com.medaptivehealth.researchstack.backbone.step.FormStep;
-import com.medaptivehealth.researchstack.backbone.step.InstructionStep;
-import com.medaptivehealth.researchstack.backbone.step.QuestionStep;
-import com.medaptivehealth.researchstack.backbone.task.OrderedTask;
-import com.medaptivehealth.researchstack.backbone.task.Task;
-import com.medaptivehealth.researchstack.backbone.ui.PinCodeActivity;
-import com.medaptivehealth.researchstack.backbone.ui.ViewTaskActivity;
-import com.medaptivehealth.researchstack.backbone.ui.step.layout.ConsentSignatureStepLayout;
+
+import org.researchstack.backbone.StorageAccess;
+import org.researchstack.backbone.answerformat.AnswerFormat;
+import org.researchstack.backbone.answerformat.BooleanAnswerFormat;
+import org.researchstack.backbone.answerformat.ChoiceAnswerFormat;
+import org.researchstack.backbone.answerformat.DateAnswerFormat;
+import org.researchstack.backbone.answerformat.IntegerAnswerFormat;
+import org.researchstack.backbone.answerformat.TextAnswerFormat;
+import org.researchstack.backbone.answerformat.UnknownAnswerFormat;
+import org.researchstack.backbone.model.Choice;
+import org.researchstack.backbone.model.ConsentDocument;
+import org.researchstack.backbone.model.ConsentSection;
+import org.researchstack.backbone.model.ConsentSignature;
+import org.researchstack.backbone.result.StepResult;
+import org.researchstack.backbone.result.TaskResult;
+import org.researchstack.backbone.step.ConsentDocumentStep;
+import org.researchstack.backbone.step.ConsentSignatureStep;
+import org.researchstack.backbone.step.ConsentVisualStep;
+import org.researchstack.backbone.step.FormStep;
+import org.researchstack.backbone.step.InstructionStep;
+import org.researchstack.backbone.step.QuestionStep;
+import org.researchstack.backbone.task.OrderedTask;
+import org.researchstack.backbone.task.Task;
+import org.researchstack.backbone.ui.PinCodeActivity;
+import org.researchstack.backbone.ui.ViewTaskActivity;
+import org.researchstack.backbone.ui.step.layout.ConsentSignatureStepLayout;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -197,7 +198,7 @@ public class MedaptiveMainActivity extends PinCodeActivity {
         section1.setContent("The content to show in learn more ...");
 
         // ...add more sections as needed, then create a visual consent step
-        ConsentVisualStep visualStep = new ConsentVisualStep(VISUAL_CONSENT_IDENTIFIER, 3, 3);
+        ConsentVisualStep visualStep = new ConsentVisualStep(VISUAL_CONSENT_IDENTIFIER);
         visualStep.setStepTitle(R.string.rsb_consent);
         visualStep.setSection(section1);
         visualStep.setNextButtonString(getString(R.string.rsb_next));
@@ -258,7 +259,8 @@ public class MedaptiveMainActivity extends PinCodeActivity {
     }
 
     private void processConsentResult(TaskResult result) {
-        boolean consented = (boolean) result.getStepResult(CONSENT_DOC).getResult();
+        boolean consented = result != null && result.getStepResult(CONSENT_DOC) != null
+                && (boolean) result.getStepResult(CONSENT_DOC).getResult();
 
         if (consented) {
             StorageAccess.getInstance().getAppDatabase().saveTaskResult(result);

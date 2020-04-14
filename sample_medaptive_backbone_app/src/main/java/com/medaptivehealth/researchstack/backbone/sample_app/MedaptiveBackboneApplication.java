@@ -2,14 +2,14 @@ package com.medaptivehealth.researchstack.backbone.sample_app;
 
 import android.app.Application;
 
-import com.medaptivehealth.researchstack.backbone.StorageAccess;
-import com.medaptivehealth.researchstack.backbone.storage.database.AppDatabase;
-import com.medaptivehealth.researchstack.backbone.storage.database.sqlite.DatabaseHelper;
-import com.medaptivehealth.researchstack.backbone.storage.file.EncryptionProvider;
-import com.medaptivehealth.researchstack.backbone.storage.file.FileAccess;
-import com.medaptivehealth.researchstack.backbone.storage.file.PinCodeConfig;
-import com.medaptivehealth.researchstack.backbone.storage.file.SimpleFileAccess;
-import com.medaptivehealth.researchstack.backbone.storage.file.UnencryptedProvider;
+import org.researchstack.backbone.StorageAccess;
+import org.researchstack.backbone.storage.database.AppDatabase;
+import org.researchstack.backbone.storage.database.sqlite.DatabaseHelper;
+import org.researchstack.backbone.storage.file.EncryptionProvider;
+import org.researchstack.backbone.storage.file.FileAccess;
+import org.researchstack.backbone.storage.file.PinCodeConfig;
+import org.researchstack.backbone.storage.file.SimpleFileAccess;
+import org.researchstack.backbone.storage.file.UnencryptedProvider;
 
 
 public class MedaptiveBackboneApplication extends Application {

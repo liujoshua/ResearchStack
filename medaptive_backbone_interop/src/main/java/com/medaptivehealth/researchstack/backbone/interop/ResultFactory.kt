@@ -1,6 +1,6 @@
 package com.medaptivehealth.researchstack.backbone.interop
 
-import com.medaptivehealth.researchstack.backbone.result.StepResult
+import org.researchstack.backbone.result.StepResult
 
 
 interface ResultFactory {

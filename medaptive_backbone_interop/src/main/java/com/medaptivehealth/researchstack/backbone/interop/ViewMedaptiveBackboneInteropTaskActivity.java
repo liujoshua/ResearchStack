@@ -14,21 +14,19 @@ import androidx.annotation.VisibleForTesting;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
-import org.jetbrains.annotations.NotNull;
-
-import com.medaptivehealth.researchstack.backbone.answerformat.AnswerFormat;
-import com.medaptivehealth.researchstack.backbone.answerformat.UnknownAnswerFormat;
 import com.medaptivehealth.researchstack.backbone.interop.presentation.BackwardsCompatibleStepFragmentProvider;
 import com.medaptivehealth.researchstack.backbone.interop.presentation.BackwardsCompatibleTaskPresentationFragment;
-import com.medaptivehealth.researchstack.backbone.result.StepResult;
-import com.medaptivehealth.researchstack.backbone.result.TaskResult;
-import com.medaptivehealth.researchstack.backbone.task.Task;
-import com.medaptivehealth.researchstack.backbone.ui.ViewTaskActivity;
+
+import org.jetbrains.annotations.NotNull;
+import org.researchstack.backbone.answerformat.UnknownAnswerFormat;
+import org.researchstack.backbone.result.StepResult;
+import org.researchstack.backbone.result.TaskResult;
+import org.researchstack.backbone.task.Task;
+import org.researchstack.backbone.ui.ViewTaskActivity;
 import org.researchstack.foundation.components.common.task.OrderedTask;
 import org.researchstack.foundation.components.presentation.ITaskProvider;
 import org.researchstack.foundation.components.presentation.TaskPresentationFragment;
 import org.researchstack.foundation.components.presentation.TaskPresentationViewModelFactory;
-
 import org.researchstack.foundation.components.presentation.interfaces.IStepFragmentProvider;
 import org.researchstack.foundation.components.presentation.interfaces.ITaskNavigator;
 import org.researchstack.foundation.components.presentation.interfaces.OnBackPressed;
@@ -48,7 +46,7 @@ import static org.threeten.bp.DateTimeUtils.toDate;
 public class ViewMedaptiveBackboneInteropTaskActivity extends ViewTaskActivity implements TaskPresentationFragment.OnTaskExitListener {
     public static final int CONTENT_VIEW_ID = R.id.rsb_content_container;
 
-    Map<String,  com.medaptivehealth.researchstack.backbone.step.Step> backboneSteps = new HashMap<>();
+    Map<String,  org.researchstack.backbone.step.Step> backboneSteps = new HashMap<>();
     private Fragment taskFragment;
 
     /**
@@ -168,7 +166,7 @@ public class ViewMedaptiveBackboneInteropTaskActivity extends ViewTaskActivity i
 
             @Override
             public <E> StepResult<E> create(@NotNull org.researchstack.foundation.core.models.result.StepResult<E> result) {
-                StepResult<E> stepResult = new StepResult<>(new com.medaptivehealth.researchstack.backbone.step.Step(result.getIdentifier()));
+                StepResult<E> stepResult = new StepResult<>(new org.researchstack.backbone.step.Step(result.getIdentifier()));
 
                 // Hack to avoid null pointer for AnswerFormat in DatabaseHelper
                 stepResult.setAnswerFormat(new UnknownAnswerFormat());
@@ -198,12 +196,12 @@ public class ViewMedaptiveBackboneInteropTaskActivity extends ViewTaskActivity i
         return new StepAdapterFactory() {
 
             @Override
-            public com.medaptivehealth.researchstack.backbone.step.Step create(IStep step) {
+            public org.researchstack.backbone.step.Step create(IStep step) {
                 return backboneSteps.get(step.getIdentifier());
             }
 
             @Override
-            public IStep create(com.medaptivehealth.researchstack.backbone.step.Step step) {
+            public IStep create(org.researchstack.backbone.step.Step step) {
                 backboneSteps.put(step.getIdentifier(), step);
                 org.researchstack.foundation.core.models.step.Step foundationStep = new Step(step.getIdentifier(), step.getTitle());
                 // TaskPresentationFragment uses StepTitle to set action bar.
@@ -216,10 +214,10 @@ public class ViewMedaptiveBackboneInteropTaskActivity extends ViewTaskActivity i
 
     @VisibleForTesting
     ITaskProvider getITaskProvider(@NonNull Task task) {
-        com.medaptivehealth.researchstack.backbone.task.OrderedTask orderedTask = (com.medaptivehealth.researchstack.backbone.task.OrderedTask) task;
+        org.researchstack.backbone.task.OrderedTask orderedTask = (org.researchstack.backbone.task.OrderedTask) task;
 
         List<Step> uiSteps = new ArrayList<>();
-        for (com.medaptivehealth.researchstack.backbone.step.Step backboneStep : orderedTask.getSteps()) {
+        for (org.researchstack.backbone.step.Step backboneStep : orderedTask.getSteps()) {
             Step uiStep = (Step) getStepAdapterFactory().create(backboneStep);
             uiSteps.add(uiStep);
         }
